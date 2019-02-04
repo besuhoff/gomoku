@@ -1,0 +1,155 @@
+<html>
+<head>
+    <style>
+        body {
+            font: 14px/18px Arial, Helvetica, sans-serif;
+        }
+
+        button {
+            font: inherit;
+        }
+
+        #panel {
+            display: flex;
+        }
+
+        #sidebar {
+            margin-left: 10px;
+            display: none;
+        }
+
+        #sidebar.visible {
+            display: block;
+        }
+
+        #sidebar .cell {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        #sidebar.visible.computer-first {
+            display: flex;
+            flex-flow: column-reverse nowrap;
+            justify-content: flex-end;
+        }
+
+        #board {
+            width: calc(15 * 24px);
+            display: flex;
+            flex-flow: row wrap;
+        }
+
+        #board.thinking {
+            position: relative;
+        }
+
+        #board.thinking:after {
+            display: block;
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        #buttons {
+            margin-top: 6px;
+        }
+
+        #avatars {
+            display: flex;
+            align-items: center;
+        }
+
+        #avatars input[type="radio"] {
+            display: none;
+        }
+
+        #avatars label {
+            cursor: pointer;
+            background: #fff;
+        }
+
+        #avatars input[type="radio"]:checked + label, .cell.selected {
+            background: #99f;
+        }
+
+        #start {
+            margin-top: 4px;
+        }
+
+        .cell {
+            width: 20px;
+            height: 20px;
+            background: #eee;
+            margin: 1px;
+            border: 1px solid #000;
+            position: relative;
+            display: block;
+            cursor: pointer;
+        }
+
+        .cell:before, .cell:after {
+            position: absolute;
+            display: block;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .cell.value_x, .cell.value_o {
+            cursor: default;
+        }
+
+        .cell.value_x:before, .cell.value_x:after {
+            border-left: 1px solid;
+            margin-top: -5px;
+            height: 11px;
+            content: '';
+        }
+
+        .cell.value_x:before {
+            transform: rotate(45deg);
+        }
+
+        .cell.value_x:after {
+            transform: rotate(135deg);
+        }
+
+        .cell.value_o:before {
+            border: 1px solid;
+            height: 7px;
+            width: 7px;
+            border-radius: 50%;
+            content: '';
+        }
+    </style>
+</head>
+<body>
+<div id="message">
+    Choose avatar and press Start
+</div>
+
+<div id="panel">
+    <div id="board"></div>
+    <div id="sidebar">
+        <div class="row"><div class="cell human"></div> &mdash; You</div>
+        <div class="row"><div class="cell computer"></div> &mdash; Computer</div>
+    </div>
+</div>
+
+<div id="buttons">
+    <div id="avatars">
+        <input type="radio" name="avatar" value="x" id="avatar_x" checked>
+        <label class="cell value_x" for="avatar_x"></label>
+        <input type="radio" name="avatar" value="o" id="avatar_o">
+        <label class="cell value_o" for="avatar_o"></label>
+    </div>
+    <button id="start" onclick="startGame()">Start game!</button>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
