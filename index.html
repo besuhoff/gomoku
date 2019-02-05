@@ -1,6 +1,10 @@
 <html>
 <head>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font: 14px/18px Arial, Helvetica, sans-serif;
             display: flex;
@@ -30,25 +34,40 @@
         #sidebar .cell {
             display: inline-block;
             vertical-align: middle;
+            border-right-width: 1px;
         }
 
-        #sidebar.visible.computer-first {
+        #sidebar.computer-first {
             display: flex;
             flex-flow: column-reverse nowrap;
             justify-content: flex-end;
         }
 
-        #board {
-            width: calc(15 * 24px);
-            display: flex;
-            flex-flow: row wrap;
+        #sidebar .cell.human {
+            border-top-width: 1px;
+            height: 23px;
         }
 
-        #board.thinking {
+        #sidebar.computer-first .cell.computer {
+            border-top-width: 1px;
+            height: 23px;
+        }
+
+        #sidebar.computer-first .cell.human {
+            border-top-width: 0;
+            height: 22px;
+        }
+
+        #board {
+            width: calc(15 * 22px + 1px);
+            display: flex;
+            flex-flow: row wrap;
+            border: solid #000;
+            border-width: 1px 1px 0 0;
             position: relative;
         }
 
-        #board.thinking:after {
+        #board.thinking:after, #board.disabled:after {
             display: block;
             content: '';
             position: absolute;
@@ -60,17 +79,17 @@
         }
 
         #buttons {
-            margin-top: 6px;
-            padding-left: 196px;
+            margin-top: 10px;
+            padding-left: 178px;
             display: flex;
             align-items: center;
         }
 
         #start {
-            width: 110px;
+            width: 104px;
             padding: 0;
-            height: 22px;
-            border: 1px solid #666;
+            height: 23px;
+            border: 1px solid #000;
             display: block;
             margin: 0 0 0 6px;
             cursor: pointer;
@@ -88,18 +107,30 @@
         #avatars label {
             cursor: pointer;
             background: #fff;
+            height: 23px;
+            border-top-width: 1px;
+        }
+
+        #avatars label:last-of-type {
+            width: 23px;
+            border-right-width: 1px;
         }
 
         #avatars input[type="radio"]:checked + label, .cell.selected {
             background: #99f;
         }
 
+        #message {
+            padding-bottom: 6px;
+        }
+
         .cell {
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             background: #eee;
-            margin: 1px;
-            border: 1px solid #000;
+            margin: 0;
+            border: solid #000;
+            border-width: 0 0 1px 1px;
             position: relative;
             display: block;
             cursor: pointer;
@@ -139,6 +170,10 @@
             border-radius: 50%;
             content: '';
         }
+
+        .cell.winning {
+            background: #6ed0ff;
+        }
     </style>
 </head>
 <body>
@@ -147,7 +182,7 @@
 </div>
 
 <div id="panel">
-    <div id="board"></div>
+    <div id="board" class="disabled"></div>
     <div id="sidebar">
         <div class="row"><div class="cell human"></div> &mdash; You</div>
         <div class="row"><div class="cell computer"></div> &mdash; Computer</div>

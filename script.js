@@ -1,6 +1,6 @@
 let field = [];
 let humanMovesFirst = null;
-let humanAvatar = 'x';
+let humanAvatar = null;
 let computerThinks = null;
 let stopComputerThinking = null;
 const fieldSize = 15;
@@ -48,8 +48,9 @@ async function computerMove() {
 
   for (let i = 0; i < fieldSize; i++) {
     for (let j = 0; j < fieldSize; j++) {
-      if (field[i * fieldSize + j] === ' ') {
-        field[i * fieldSize + j] = getComputerAvatar();
+      if (fieldPointAt(j, i).value === ' ') {
+        fieldPointAt(j, i).value = getComputerAvatar();
+        render();
         return;
       }
     }
@@ -57,16 +58,15 @@ async function computerMove() {
 }
 
 async function humanMove(position) {
-  if (field[position] !== ' ' || computerThinks || hasWinner()) {
+  if (field[position].value !== ' ' || computerThinks || hasWinner()) {
     return;
   }
-  field[position] = humanAvatar;
+  field[position].value = humanAvatar;
   render();
 
 
   if (!hasWinner()) {
     await computerMove();
-    render();
   } else {
     showMessage('You won!');
     humanMovesFirst = true;
@@ -80,10 +80,17 @@ async function humanMove(position) {
 }
 
 function emptyField() {
-  field = Array(fieldSize * fieldSize).fill(' ');
+  field = [];
+  for (let i = 0; i < fieldSize * fieldSize; i++) {
+    field.push({value: ' ', isWinning: false});
+  }
 }
 
 async function startGame() {
+  if (!hasWinner()) {
+    humanMovesFirst = Boolean(Math.round(Math.random()));
+  }
+
   humanAvatar = getHumanAvatarValue();
   showMessage('Let the war begin!');
 
@@ -94,9 +101,6 @@ async function startGame() {
   emptyField();
   render();
 
-  if (humanMovesFirst === null) {
-    humanMovesFirst = Boolean(Math.round(Math.random()));
-  }
   showSidebar();
 
   if (!humanMovesFirst) {
@@ -129,12 +133,12 @@ function hasWinner() {
   const indices = range(0, fieldSize);
 
   for (let i = 0; i < fieldSize; i++) {
-    const line = indices.map(j => fieldPointAt(j, i)).join('');
-    const column = indices.map(j => fieldPointAt(i, j)).join('');
-    const diagonalTopForth = indices.map(j => fieldPointAt(i + j, j)).join('');
-    const diagonalTopBack = indices.map(j => fieldPointAt(fieldSize - 1 - i - j, j)).join('');
-    const diagonalBottomForth = indices.map(j => fieldPointAt(j, i + j)).join('');
-    const diagonalBottomBack = indices.map(j => fieldPointAt(fieldSize - 1 - j, i + j)).join('');
+    const line = indices.map(j => fieldPointAt(j, i)).filter(Boolean);
+    const column = indices.map(j => fieldPointAt(i, j)).filter(Boolean);
+    const diagonalTopForth = indices.map(j => fieldPointAt(i + j, j)).filter(Boolean);
+    const diagonalTopBack = indices.map(j => fieldPointAt(fieldSize - 1 - i - j, j)).filter(Boolean);
+    const diagonalBottomForth = indices.map(j => fieldPointAt(j, i + j)).filter(Boolean);
+    const diagonalBottomBack = indices.map(j => fieldPointAt(fieldSize - 1 - j, i + j)).filter(Boolean);
     const directions = [
       line,
       column,
@@ -144,9 +148,21 @@ function hasWinner() {
       diagonalBottomBack
     ];
 
-    if (combinations.some(combination =>
-      directions.some(direction=> direction.indexOf(combination) !== -1))
-    ) {
+    const direction = directions
+      .map(direction=> ({indices: combinations.map(combination => direction.map(i=> i.value).join('').indexOf(combination)), direction}))
+      .find(({indices: [zerosIndex, crossesIndex]})=> crossesIndex > -1 || zerosIndex > -1);
+
+    console.log(directions, direction);
+
+    if (direction) {
+      const [zerosIndex, crossesIndex] = direction.indices;
+      const nonNegativeIndex = zerosIndex > -1 ? zerosIndex : crossesIndex;
+      // Mark all points as winning
+      direction.direction
+        .slice(nonNegativeIndex, nonNegativeIndex + winningSize)
+        .forEach(point=> point.isWinning = true);
+      render();
+
       return true;
     }
   }
@@ -185,8 +201,12 @@ function render() {
   field.forEach((cell)=> {
     const boardCell = document.createElement('div');
     boardCell.classList.add('cell');
-    if (cell !== ' ') {
-      boardCell.classList.add('value_' + cell);
+    if (cell.value !== ' ') {
+      boardCell.classList.add('value_' + cell.value);
+    }
+
+    if (cell.isWinning) {
+      boardCell.classList.add('winning');
     }
 
     board.appendChild(boardCell);
@@ -195,7 +215,8 @@ function render() {
   const computerCellClassList = document.querySelector('#sidebar .cell.computer').classList;
   const humanCellClassList = document.querySelector('#sidebar .cell.human').classList;
 
-  document.getElementById('board').classList[computerThinks ? 'add' : 'remove']('thinking');
+  board.classList[computerThinks ? 'add' : 'remove']('thinking');
+  board.classList[humanAvatar ? 'remove' : 'add']('disabled');
 
   computerCellClassList[computerThinks ? 'add' : 'remove']('selected');
   computerCellClassList.remove('value_o', 'value_x');
