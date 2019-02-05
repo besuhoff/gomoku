@@ -3,6 +3,9 @@
     <style>
         body {
             font: 14px/18px Arial, Helvetica, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         button {
@@ -11,15 +14,17 @@
 
         #panel {
             display: flex;
+            padding-left: 210px;
         }
 
         #sidebar {
             margin-left: 10px;
-            display: none;
+            width: 200px;
+            visibility: hidden;
         }
 
         #sidebar.visible {
-            display: block;
+            visibility: visible;
         }
 
         #sidebar .cell {
@@ -56,6 +61,19 @@
 
         #buttons {
             margin-top: 6px;
+            padding-left: 196px;
+            display: flex;
+            align-items: center;
+        }
+
+        #start {
+            width: 110px;
+            padding: 0;
+            height: 22px;
+            border: 1px solid #666;
+            display: block;
+            margin: 0 0 0 6px;
+            cursor: pointer;
         }
 
         #avatars {
@@ -74,10 +92,6 @@
 
         #avatars input[type="radio"]:checked + label, .cell.selected {
             background: #99f;
-        }
-
-        #start {
-            margin-top: 4px;
         }
 
         .cell {
